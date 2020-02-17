@@ -2,6 +2,7 @@ package com.learnreactivespring.fluxandmonoplayground;
 
 import org.junit.Test;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 public class FlunAndmonoTest {
 
@@ -17,6 +18,21 @@ public class FlunAndmonoTest {
                 .subscribe(System.out::println,
                         (e) -> System.err.println("Exception is " + e)
                         , () -> System.out.println("Completed"));
+    }
+
+
+    @Test
+    public void fluxTestElements_WithoutError() {
+
+        Flux<String> stringFlux = Flux.just("Spring", "Spring Boot", "Reactive Spring")
+                .log();
+
+        StepVerifier.create(stringFlux)
+                .expectNext("Spring")
+                .expectNext("Spring Boot")
+                .expectNext("Reactive Spring")
+                .verifyComplete();
+
     }
 
 }
