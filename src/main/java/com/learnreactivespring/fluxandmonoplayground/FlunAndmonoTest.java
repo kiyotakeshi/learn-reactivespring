@@ -43,10 +43,25 @@ public class FlunAndmonoTest {
                 .log();
 
         StepVerifier.create(stringFlux)
-                .expectNext("Spring")
-                .expectNext("Spring Boot")
-                .expectNext("Reactive Spring")
+//                .expectNext("Spring")
+//                .expectNext("Spring Boot")
+//                .expectNext("Reactive Spring")
+                .expectNext("Spring", "Spring Boot", "Reactive Spring")
 //                .expectError(RuntimeException.class)
+                .expectErrorMessage("Exception Occurred")
+                .verify();
+
+    }
+
+    @Test
+    public void fluxTestElementsCount_WithError() {
+
+        Flux<String> stringFlux = Flux.just("Spring", "Spring Boot", "Reactive Spring")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                .log();
+
+        StepVerifier.create(stringFlux)
+                .expectNextCount(3)
                 .expectErrorMessage("Exception Occurred")
                 .verify();
 
