@@ -2,10 +2,12 @@ package com.learnreactivespring.fluxandmonoplayground;
 
 import org.junit.Test;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class FluxAndMonoFactoryTest {
 
@@ -21,6 +23,7 @@ public class FluxAndMonoFactoryTest {
         StepVerifier.create(namesFlux)
                 .expectNext("adam", "anna", "jack", "jenny")
                 .verifyComplete();
+
     }
 
     @Test
@@ -33,5 +36,41 @@ public class FluxAndMonoFactoryTest {
         StepVerifier.create(namesFlux)
                 .expectNext("adam", "anna", "jack", "jenny")
                 .verifyComplete();
+    }
+
+    @Test
+    public void fluxUsingStream(){
+
+        System.out.println(names);
+        Flux<String> namesFlux = Flux.fromStream(names.stream())
+                .log();
+
+        StepVerifier.create(namesFlux)
+                .expectNext("adam", "anna", "jack", "jenny")
+                .verifyComplete();
+    }
+
+    @Test
+    public void monoUsingJustEmpty(){
+
+        Mono<String> mono = Mono.justOrEmpty(null); // Mono.Empty();
+
+        StepVerifier.create(mono.log())
+                .verifyComplete();
+    }
+
+    @Test
+    public void monoUsingSupplier(){
+
+        Supplier<String> stringSupplier = () -> "adam";
+
+        Mono<String> stringMono = Mono.fromSupplier(stringSupplier);
+
+        System.out.println(stringSupplier.get());
+
+        StepVerifier.create(stringMono.log())
+                .expectNext("adam")
+                .verifyComplete();
+
     }
 }
