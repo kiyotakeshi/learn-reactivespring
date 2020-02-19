@@ -62,4 +62,30 @@ public class FluxAndMonoTransformTest {
                 .expectNext("JENNY")
                 .verifyComplete();
     }
+
+    @Test
+    public void transformUsingFlatMap() {
+
+        Flux<String> stringFlux = Flux.fromIterable(Arrays.asList("A", "B", "C", "D", "E", "F")) // A, B, C, E, F
+                .flatMap(s -> {
+
+                    return Flux.fromIterable(convertToList(s)); // A -> List[A, newValue] , B -> List[B, newValue]
+                })
+                .log(); // db or external service call that returns a flux -> s -> Flux<String>
+
+        StepVerifier.create(stringFlux) // it takes 6 seconds
+                .expectNextCount(12)
+                .verifyComplete();
+    }
+
+    private List<String> convertToList(String s) {
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Arrays.asList(s, "newValue");
+    }
+
 }
