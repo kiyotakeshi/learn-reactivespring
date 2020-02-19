@@ -15,7 +15,7 @@ public class FluxAndMonoFactoryTest {
 
 
     @Test
-    public void fluxUsingIterable(){
+    public void fluxUsingIterable() {
 
         Flux<String> namesFlux = Flux.fromIterable(names)
                 .log();
@@ -27,7 +27,7 @@ public class FluxAndMonoFactoryTest {
     }
 
     @Test
-    public void fluxUsingArray(){
+    public void fluxUsingArray() {
 
         String[] names = new String[]{"adam", "anna", "jack", "jenny"};
 
@@ -39,7 +39,7 @@ public class FluxAndMonoFactoryTest {
     }
 
     @Test
-    public void fluxUsingStream(){
+    public void fluxUsingStream() {
 
         System.out.println(names);
         Flux<String> namesFlux = Flux.fromStream(names.stream())
@@ -51,7 +51,7 @@ public class FluxAndMonoFactoryTest {
     }
 
     @Test
-    public void monoUsingJustEmpty(){
+    public void monoUsingJustEmpty() {
 
         Mono<String> mono = Mono.justOrEmpty(null); // Mono.Empty();
 
@@ -60,7 +60,7 @@ public class FluxAndMonoFactoryTest {
     }
 
     @Test
-    public void monoUsingSupplier(){
+    public void monoUsingSupplier() {
 
         Supplier<String> stringSupplier = () -> "adam";
 
@@ -70,6 +70,17 @@ public class FluxAndMonoFactoryTest {
 
         StepVerifier.create(stringMono.log())
                 .expectNext("adam")
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void fluxUsingRange() {
+
+        Flux<Integer> integerFlux = Flux.range(1, 5).log();
+
+        StepVerifier.create(integerFlux)
+                .expectNext(1,2,3,4,5)
                 .verifyComplete();
 
     }
