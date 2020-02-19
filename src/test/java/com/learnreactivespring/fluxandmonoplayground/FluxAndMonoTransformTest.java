@@ -35,4 +35,31 @@ public class FluxAndMonoTransformTest {
                 .expectNext(4, 4, 4, 5)
                 .verifyComplete();
     }
+
+    @Test
+    public void transformUsingMapLengthRepeat() {
+
+        Flux<Integer> namesFlux = Flux.fromIterable(names)
+                .map(s -> s.length()) // ADAM, ANNA, JACK, JENNY
+                .repeat(1)
+                .log();
+
+        StepVerifier.create(namesFlux)
+                .expectNext(4, 4, 4, 5)
+                .expectNext(4, 4, 4, 5)
+                .verifyComplete();
+    }
+
+    @Test
+    public void transformUsingFilterMap() {
+
+        Flux<String> namesFlux = Flux.fromIterable(names)
+                .filter(s -> s.length() > 4) // jenny
+                .map(s -> s.toUpperCase()) // JENNY
+                .log();
+
+        StepVerifier.create(namesFlux)
+                .expectNext("JENNY")
+                .verifyComplete();
+    }
 }
