@@ -82,4 +82,27 @@ public class FluxAndMonoCombineTest {
         // 23:51:41.465 [parallel-2] INFO reactor.Flux.ConcatArray.1 - onNext(F)
         // 23:51:41.466 [parallel-2] INFO reactor.Flux.ConcatArray.1 - onComplete()
     }
+
+    @Test
+    public void combineUsingZip() {
+
+        Flux<String> flux1 = Flux.just("A", "B", "C");
+        Flux<String> flux2 = Flux.just("D", "E", "F");
+
+        Flux<String> mergedFlux = Flux.zip(flux1, flux2, (t1, t2) -> {
+            return t1.concat(t2); // AD, BE, CF
+        }); // A,D : B,E : C,F
+
+        StepVerifier.create(mergedFlux.log())
+                .expectSubscription()
+                .expectNext("AD", "BE", "CF")
+                .verifyComplete();
+
+        // 00:00:56.591 [main] INFO reactor.Flux.Zip.1 - onSubscribe(FluxZip.ZipCoordinator)
+        // 00:00:56.596 [main] INFO reactor.Flux.Zip.1 - request(unbounded)
+        // 00:00:56.598 [main] INFO reactor.Flux.Zip.1 - onNext(AD)
+        // 00:00:56.598 [main] INFO reactor.Flux.Zip.1 - onNext(BE)
+        // 00:00:56.598 [main] INFO reactor.Flux.Zip.1 - onNext(CF)
+        // 00:00:56.599 [main] INFO reactor.Flux.Zip.1 - onComplete()
+    }
 }
