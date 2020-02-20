@@ -36,4 +36,60 @@ public class FluxAndMonoErrorTest {
         // 00:23:14.363 [main] INFO reactor.Flux.OnErrorResume.1 - onComplete()
         // Process finished with exit code 0
     }
+
+    @Test
+    public void fluxErrorHandlingOnErrorReturn() {
+
+        Flux<String> stringFlux = Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                .concatWith(Flux.just("D")) // not executed this line
+                .onErrorReturn("default");
+
+        StepVerifier.create(stringFlux.log())
+                .expectSubscription()
+                .expectNext("A", "B", "C")
+                .expectNext("default")
+                .verifyComplete();
+
+        // 07:42:43.484 [main] INFO reactor.Flux.OnErrorResume.1 - request(unbounded)
+        // 07:42:43.485 [main] INFO reactor.Flux.OnErrorResume.1 - onNext(A)
+        // 07:42:43.485 [main] INFO reactor.Flux.OnErrorResume.1 - onNext(B)
+        // 07:42:43.485 [main] INFO reactor.Flux.OnErrorResume.1 - onNext(C)
+        // 07:42:43.486 [main] INFO reactor.Flux.OnErrorResume.1 - onNext(default)
+        // 07:42:43.487 [main] INFO reactor.Flux.OnErrorResume.1 - onComplete()
+        // Process finished with exit code 0
+    }
+
+    @Test
+    public void fluxErrorHandlingOnErrorMap() {
+
+        Flux<String> stringFlux = Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                .concatWith(Flux.just("D")) // not executed this line
+                .onErrorMap((e) -> new CustomException(e));
+
+        StepVerifier.create(stringFlux.log())
+                .expectSubscription()
+                .expectNext("A", "B", "C")
+                .expectError(CustomException.class)
+                .verify();
+    }
+
+    @Test
+    public void fluxErrorHandlingOnErrorMapWithRetry() {
+
+        Flux<String> stringFlux = Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                .concatWith(Flux.just("D")) // not executed this line
+                .onErrorMap((e) -> new CustomException(e))
+                .retry(2);
+
+        StepVerifier.create(stringFlux.log())
+                .expectSubscription()
+                .expectNext("A", "B", "C")
+                .expectNext("A", "B", "C")
+                .expectNext("A", "B", "C")
+                .expectError(CustomException.class)
+                .verify();
+    }
 }
