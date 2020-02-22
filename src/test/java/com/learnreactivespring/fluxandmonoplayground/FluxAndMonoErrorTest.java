@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
+
 public class FluxAndMonoErrorTest {
 
     @Test
@@ -90,6 +92,23 @@ public class FluxAndMonoErrorTest {
                 .expectNext("A", "B", "C")
                 .expectNext("A", "B", "C")
                 .expectError(CustomException.class)
+                .verify();
+    }
+    @Test
+    public void fluxErrorHandlingOnErrorMapWithRetryBackoff() {
+
+        Flux<String> stringFlux = Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                .concatWith(Flux.just("D")) // not executed this line
+                .onErrorMap((e) -> new CustomException(e))
+                .retryBackoff(2, Duration.ofSeconds(3));
+
+        StepVerifier.create(stringFlux.log())
+                .expectSubscription()
+                .expectNext("A", "B", "C")
+                .expectNext("A", "B", "C")
+                .expectNext("A", "B", "C")
+                .expectError(IllegalStateException.class)
                 .verify();
     }
 }
