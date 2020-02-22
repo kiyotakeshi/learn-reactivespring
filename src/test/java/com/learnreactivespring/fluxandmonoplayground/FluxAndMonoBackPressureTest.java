@@ -1,6 +1,7 @@
 package com.learnreactivespring.fluxandmonoplayground;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -42,5 +43,24 @@ public class FluxAndMonoBackPressureTest {
                 , (e) -> System.err.println("Exception is : " + e)
                 , () -> System.out.println("Done") // this doesn't execute
                 , (subscription -> subscription.cancel()));
+    }
+
+    @Test
+    public void customizedBackPressure() {
+
+        Flux<Integer> finiteFlux = Flux.range(1, 10)
+                .log();
+
+        finiteFlux.subscribe(new BaseSubscriber<Integer>() {
+            @Override
+            protected void hookOnNext(Integer value) {
+                request(1);
+                System.out.println("Value received is : " + value);
+                if (value == 4) {
+                    cancel();
+                }
+            }
+        });
+
     }
 }
