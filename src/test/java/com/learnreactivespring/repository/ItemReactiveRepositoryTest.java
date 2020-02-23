@@ -23,7 +23,8 @@ public class ItemReactiveRepositoryTest {
     List<Item> itemList = Arrays.asList(new Item(null, "Samsung TV", 400.0)
             , new Item(null, "LG TV", 420.0)
             , new Item(null, "Apple TV", 299.99)
-            , new Item(null, "Beats Headphones", 499.99));
+            , new Item(null, "Beats Headphones", 499.99)
+            , new Item("ABC", "Bose Headphones", 499.99));
 
     @Before
     public void setUp() {
@@ -42,7 +43,7 @@ public class ItemReactiveRepositoryTest {
 
         StepVerifier.create(itemReactiveRepository.findAll()) // 0
                 .expectSubscription()
-                .expectNextCount(4)
+                .expectNextCount(5)
                 .verifyComplete();
     }
 
@@ -54,4 +55,13 @@ public class ItemReactiveRepositoryTest {
     // 2020-02-23 19:48:42.756  INFO 17294 --- [extShutdownHook] org.mongodb.driver.connection            : Closed connection [connectionId{localValue:6, serverValue:6}] to localhost:27017 because the pool has been closed.
     // 2020-02-23 19:48:42.756  INFO 17294 --- [extShutdownHook] org.mongodb.driver.connection            : Closed connection [connectionId{localValue:3, serverValue:3}] to localhost:27017 because the pool has been closed.
     // 2020-02-23 19:48:42.757  INFO 17294 --- [extShutdownHook] org.mongodb.driver.connection            : Closed connection [connectionId{localValue:4, serverValue:4}] to localhost:27017 because the pool has been closed.
+
+    @Test
+    public void getItemByID() {
+
+        StepVerifier.create(itemReactiveRepository.findById("ABC"))
+                .expectSubscription()
+                .expectNextMatches((item -> item.getDescription().equals("Bose Headphones")))
+                .verifyComplete();
+    }
 }
