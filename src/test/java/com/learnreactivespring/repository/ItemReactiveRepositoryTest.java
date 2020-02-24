@@ -64,4 +64,18 @@ public class ItemReactiveRepositoryTest {
                 .expectNextMatches((item -> item.getDescription().equals("Bose Headphones")))
                 .verifyComplete();
     }
+
+    @Test
+    public void findItemByDescription() {
+
+        StepVerifier.create(itemReactiveRepository.findByDescription("Bose Headphones").log("findItemByDescription : "))
+                .expectSubscription()
+                .expectNextCount(1)
+                .verifyComplete();
+
+        // 2020-02-24 08:59:52.360  INFO 17786 --- [           main] findItemByDescription :                  : onSubscribe(FluxOnErrorResume.ResumeSubscriber)
+        // 2020-02-24 08:59:52.364  INFO 17786 --- [           main] findItemByDescription :                  : request(unbounded)
+        // 2020-02-24 08:59:52.404  INFO 17786 --- [ntLoopGroup-2-6] findItemByDescription :                  : onNext(Item(id=ABC, description=Bose Headphones, price=499.99))
+        // 2020-02-24 08:59:52.405  INFO 17786 --- [ntLoopGroup-2-6] findItemByDescription :                  : onComplete()
+    }
 }
