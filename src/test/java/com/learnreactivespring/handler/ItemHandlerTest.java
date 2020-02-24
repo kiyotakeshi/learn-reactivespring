@@ -130,4 +130,13 @@ public class ItemHandlerTest {
                 .jsonPath("$.description").isEqualTo("iPhone X")
                 .jsonPath("$.price").isEqualTo("999.99");
     }
+
+    @Test
+    public void deleteOneItem(){
+        webTestClient.delete().uri(ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"), "ABC")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class);
+    }
 }
