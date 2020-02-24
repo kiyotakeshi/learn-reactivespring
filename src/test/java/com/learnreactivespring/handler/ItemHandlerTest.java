@@ -1,6 +1,5 @@
 package com.learnreactivespring.handler;
 
-import com.learnreactivespring.constants.ItemConstants;
 import com.learnreactivespring.document.Item;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import org.junit.Before;
@@ -15,9 +14,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.learnreactivespring.constants.ItemConstants.ITEM_FUNCTIONAL_END_POINT_V1;
+import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -53,7 +56,7 @@ public class ItemHandlerTest {
 
     @Test
     public void getAllItems() {
-        webTestClient.get().uri(ItemConstants.ITEM_FUNCTIONAL_END_POINT_V1)
+        webTestClient.get().uri(ITEM_FUNCTIONAL_END_POINT_V1)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -62,9 +65,42 @@ public class ItemHandlerTest {
     }
 
     @Test
+    public void getAllItemsApproach2() {
+        webTestClient.get().uri(ITEM_FUNCTIONAL_END_POINT_V1)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Item.class)
+                .hasSize(4)
+                .consumeWith(response -> {
+                    List<Item> items = response.getResponseBody();
+                    items.forEach(item1 -> {
+                        assertTrue(item1.getId() != null);
+                    });
+                });
+    }
+
+    @Test
+    public void getAllItemsApproach3(){
+
+        Flux<Item> itemFlux = webTestClient.get().uri(ITEM_FUNCTIONAL_END_POINT_V1)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .returnResult(Item.class)
+                .getResponseBody();
+
+        StepVerifier.create(itemFlux)
+                .expectNextCount(4)
+                .verifyComplete();
+    }
+
+    @Test
     public void getOneItem() {
 
-        webTestClient.get().uri(ItemConstants.ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"), "ABC")
+        webTestClient.get().uri(ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"), "ABC")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -74,7 +110,7 @@ public class ItemHandlerTest {
     @Test
     public void getOneItemNotFound() {
 
-        webTestClient.get().uri(ItemConstants.ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"), "DEF")
+        webTestClient.get().uri(ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"), "DEF")
                 .exchange()
                 .expectStatus().isNotFound();
     }
