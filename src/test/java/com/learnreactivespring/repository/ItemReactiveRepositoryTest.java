@@ -101,7 +101,7 @@ public class ItemReactiveRepositoryTest {
 
         double newPrice = 520.00;
 
-        Flux<Item> updatedItem = itemReactiveRepository.findByDescription("LG TV")
+        Mono<Item> updatedItem = itemReactiveRepository.findByDescription("LG TV")
                 .map(item -> {
                     item.setPrice(newPrice); // setting the new price
                     return item;
