@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
@@ -78,4 +79,21 @@ public class ItemReactiveRepositoryTest {
         // 2020-02-24 08:59:52.404  INFO 17786 --- [ntLoopGroup-2-6] findItemByDescription :                  : onNext(Item(id=ABC, description=Bose Headphones, price=499.99))
         // 2020-02-24 08:59:52.405  INFO 17786 --- [ntLoopGroup-2-6] findItemByDescription :                  : onComplete()
     }
+
+    @Test
+    public void saveItem() {
+
+        Item item = new Item(null, "Google Home Mini", 30.00);
+        Mono<Item> savedItem = itemReactiveRepository.save(item);
+
+        StepVerifier.create(savedItem.log("saveItem : "))
+                .expectSubscription()
+                .expectNextMatches(item1 -> (item1.getId() != null && item1.getDescription().equals("Google Home Mini")))
+                .verifyComplete();
+    }
+
+    // 2020-02-24 10:18:44.277  INFO 17940 --- [           main] saveItem :                               : | onSubscribe([Fuseable] MonoFlatMap.FlatMapMain)
+    // 2020-02-24 10:18:44.279  INFO 17940 --- [           main] saveItem :                               : | request(unbounded)
+    // 2020-02-24 10:18:44.291  INFO 17940 --- [ntLoopGroup-2-6] saveItem :                               : | onNext(Item(id=5e5324744fc97d3351a7d4c9, description=Google Home Mini, price=30.0))
+    // 2020-02-24 10:18:44.292  INFO 17940 --- [ntLoopGroup-2-6] saveItem :                               : | onComplete()
 }
