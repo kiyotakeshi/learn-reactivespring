@@ -124,7 +124,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void createItem(){
+    public void createItem() {
 
         Item item = new Item(null, "iPhone X", 999.99);
 
@@ -140,12 +140,41 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void deleteItem(){
+    public void deleteItem() {
 
         webTestClient.delete().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "ABC")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Void.class);
+    }
+
+    @Test
+    public void updateItem() {
+        double newPrice = 129.99;
+        Item item = new Item(null, "Beats HeadPhones ", newPrice);
+
+        webTestClient.put().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "ABC")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(item), Item.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price", newPrice);
+
+    }
+
+    @Test
+    public void updateItemNotFound() {
+        double newPrice = 129.99;
+        Item item = new Item(null, "Beats HeadPhones ", newPrice);
+
+        webTestClient.put().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "DEF")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(item), Item.class)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 }
