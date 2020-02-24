@@ -90,10 +90,35 @@ public class ItemReactiveRepositoryTest {
                 .expectSubscription()
                 .expectNextMatches(item1 -> (item1.getId() != null && item1.getDescription().equals("Google Home Mini")))
                 .verifyComplete();
+        // 2020-02-24 10:18:44.277  INFO 17940 --- [           main] saveItem :                               : | onSubscribe([Fuseable] MonoFlatMap.FlatMapMain)
+        // 2020-02-24 10:18:44.279  INFO 17940 --- [           main] saveItem :                               : | request(unbounded)
+        // 2020-02-24 10:18:44.291  INFO 17940 --- [ntLoopGroup-2-6] saveItem :                               : | onNext(Item(id=5e5324744fc97d3351a7d4c9, description=Google Home Mini, price=30.0))
+        // 2020-02-24 10:18:44.292  INFO 17940 --- [ntLoopGroup-2-6] saveItem :                               : | onComplete()
     }
 
-    // 2020-02-24 10:18:44.277  INFO 17940 --- [           main] saveItem :                               : | onSubscribe([Fuseable] MonoFlatMap.FlatMapMain)
-    // 2020-02-24 10:18:44.279  INFO 17940 --- [           main] saveItem :                               : | request(unbounded)
-    // 2020-02-24 10:18:44.291  INFO 17940 --- [ntLoopGroup-2-6] saveItem :                               : | onNext(Item(id=5e5324744fc97d3351a7d4c9, description=Google Home Mini, price=30.0))
-    // 2020-02-24 10:18:44.292  INFO 17940 --- [ntLoopGroup-2-6] saveItem :                               : | onComplete()
+    @Test
+    public void updateItem() {
+
+        double newPrice = 520.00;
+
+        Flux<Item> updatedItem = itemReactiveRepository.findByDescription("LG TV")
+                .map(item -> {
+                    item.setPrice(newPrice); // setting the new price
+                    return item;
+
+                })
+                .flatMap(item -> {
+                    return itemReactiveRepository.save(item); // saving the item with the new price
+                });
+
+        StepVerifier.create(updatedItem.log("updated item : "))
+                .expectSubscription()
+                .expectNextMatches(item -> item.getPrice() == 520.00)
+                .verifyComplete();
+        // 2020-02-24 10:42:34.515  INFO 1161 --- [           main] updated item :                           : onSubscribe(FluxFlatMap.FlatMapMain)
+        // 2020-02-24 10:42:34.519  INFO 1161 --- [           main] updated item :                           : request(unbounded)
+        // 2020-02-24 10:42:34.560  INFO 1161 --- [ntLoopGroup-2-6] updated item :                           : onNext(Item(id=5e532a0a1693ca16ac4294d8, description=LG TV, price=520.0))
+        // 2020-02-24 10:42:34.561  INFO 1161 --- [ntLoopGroup-2-6] updated item :                           : onComplete()
+    }
+
 }
