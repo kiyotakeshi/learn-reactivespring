@@ -121,4 +121,55 @@ public class ItemReactiveRepositoryTest {
         // 2020-02-24 10:42:34.561  INFO 1161 --- [ntLoopGroup-2-6] updated item :                           : onComplete()
     }
 
+    @Test
+    public void deleteItemById() {
+
+        Mono<Void> deletedItem = itemReactiveRepository.findById("ABC") // Mono<Item>
+                .map(Item::getId) // get Id -> Transform one type to another type
+                .flatMap((id) -> {
+                    return itemReactiveRepository.deleteById(id);
+                });
+
+        StepVerifier.create(deletedItem.log())
+                .expectSubscription()
+                .verifyComplete();
+
+        StepVerifier.create(itemReactiveRepository.findAll().log("The new Item List : "))
+                .expectNextCount(4)
+                .verifyComplete();
+        // 2020-02-24 10:49:53.825  INFO 1301 --- [           main] The new Item List :                      : onSubscribe(FluxOnErrorResume.ResumeSubscriber)
+        // 2020-02-24 10:49:53.826  INFO 1301 --- [           main] The new Item List :                      : request(unbounded)
+        // 2020-02-24 10:49:53.834  INFO 1301 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532bc15268397d928bc94b, description=Samsung TV, price=400.0))
+        // 2020-02-24 10:49:53.834  INFO 1301 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532bc15268397d928bc94c, description=LG TV, price=420.0))
+        // 2020-02-24 10:49:53.835  INFO 1301 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532bc15268397d928bc94d, description=Apple TV, price=299.99))
+        // 2020-02-24 10:49:53.836  INFO 1301 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532bc15268397d928bc94e, description=Beats Headphones, price=499.99))
+        // 2020-02-24 10:49:53.836  INFO 1301 --- [ntLoopGroup-2-6] The new Item List :                      : onComplete()
+    }
+
+    @Test
+    public void deleteItemB() {
+
+        Mono<Void> deletedItem = itemReactiveRepository.findByDescription("LG TV")
+                .flatMap((item -> {
+                    return itemReactiveRepository.delete(item);
+                }));
+
+        StepVerifier.create(deletedItem.log())
+                .expectSubscription()
+                .verifyComplete();
+
+        StepVerifier.create(itemReactiveRepository.findAll().log("The new Item List : "))
+                .expectSubscription()
+                .expectNextCount(4)
+                .verifyComplete();
+        // 2020-02-24 10:55:30.339  INFO 1327 --- [           main] The new Item List :                      : onSubscribe(FluxOnErrorResume.ResumeSubscriber)
+        // 2020-02-24 10:55:30.340  INFO 1327 --- [           main] The new Item List :                      : request(unbounded)
+        // 2020-02-24 10:55:30.345  INFO 1327 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532d128bbd327d9a36d564, description=Samsung TV, price=400.0))
+        // 2020-02-24 10:55:30.345  INFO 1327 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532d128bbd327d9a36d566, description=Apple TV, price=299.99))
+        // 2020-02-24 10:55:30.346  INFO 1327 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=5e532d128bbd327d9a36d567, description=Beats Headphones, price=499.99))
+        // 2020-02-24 10:55:30.346  INFO 1327 --- [ntLoopGroup-2-6] The new Item List :                      : onNext(Item(id=ABC, description=Bose Headphones, price=499.99))
+        // 2020-02-24 10:55:30.346  INFO 1327 --- [ntLoopGroup-2-6] The new Item List :                      : onComplete()
+    }
+
+
 }
