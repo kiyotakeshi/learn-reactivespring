@@ -103,4 +103,22 @@ public class ItemControllerTest {
         // 2020-02-24 15:20:03.447  INFO 2213 --- [           main] value from network :                     : | onNext(Item(id=ABC, description=Beats HeadPhones , price=199.99))
         // 2020-02-24 15:20:03.448  INFO 2213 --- [           main] value from network :                     : | onComplete()
     }
+
+    @Test
+    public void getOneItem() {
+
+        webTestClient.get().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "ABC")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price", 199.99);
+    }
+
+    @Test
+    public void getOneItemNotFound() {
+
+        webTestClient.get().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "DEF")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
 }
