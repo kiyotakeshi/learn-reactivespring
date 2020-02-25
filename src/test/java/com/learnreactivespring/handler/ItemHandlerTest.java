@@ -1,5 +1,6 @@
 package com.learnreactivespring.handler;
 
+import com.learnreactivespring.constants.ItemConstants;
 import com.learnreactivespring.document.Item;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import org.junit.Before;
@@ -132,11 +133,27 @@ public class ItemHandlerTest {
     }
 
     @Test
-    public void deleteOneItem(){
+    public void deleteOneItem() {
         webTestClient.delete().uri(ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"), "ABC")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Void.class);
     }
+
+//    @Test
+//    public void updateItem() {
+//        double newPrice = 129.99;
+//        Item item = new Item(null, "Beats HeadPhones ", newPrice);
+//
+//        webTestClient.put().uri(ITEM_FUNCTIONAL_END_POINT_V1.concat("/{id}"),"ABC")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON)
+//                .body(Mono.just(item), Item.class)
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody()
+//                .jsonPath("$.price",newPrice);
+//
+//    }
 }
